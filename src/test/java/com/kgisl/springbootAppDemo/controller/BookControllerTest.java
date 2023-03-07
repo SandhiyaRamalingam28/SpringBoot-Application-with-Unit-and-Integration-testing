@@ -1,0 +1,78 @@
+package com.kgisl.springbootAppDemo.controller;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import com.kgisl.springbootAppDemo.entity.Book;
+import com.kgisl.springbootAppDemo.service.BookService;
+
+@ExtendWith(MockitoExtension.class)
+
+public class BookControllerTest {
+  @Mock
+  private BookService bookService;
+
+  @InjectMocks
+  private BookController bookController;
+
+  public static List<Book> expected;
+  Book book1 = new Book();
+  Book book2 = new Book();
+
+  @Test
+  public void allTest() {
+    expected = Arrays.asList(book1, book2);
+    System.out.println(expected);
+    when(bookService.getBooks()).thenReturn(expected);
+    ResponseEntity<List<Book>> actual = bookController.all();
+    assertNotNull(actual);
+    assertEquals(expected, actual.getBody());
+    assertEquals(HttpStatus.OK, actual.getStatusCode());
+  }
+
+  @Test
+  public void getBookByIdTest() {
+    Long id = 4L;
+    when(bookService.findByBookId(id)).thenReturn(book1);
+    ResponseEntity<Book> actual = bookController.getBookById(id);
+    assertNotNull(actual);
+    
+  }
+
+  @Test
+  public void createBookTest() {
+    when(bookService.createBook(book1)).thenReturn(book1);
+    bookController.createBook(book1);
+  }
+
+  @Test
+  public void updateBookTest() {
+    Long id = 1L;
+    ResponseEntity<Book> actual = bookController.updateBook(id, book1);
+    assertNotNull(actual);
+    System.out.println("Actual is  "+actual.getBody());
+    System.out.println("expected-->" + expected);
+   
+  }
+
+  @Test
+  public void deleteBookTest() {
+    Long id = 1L;
+    when(bookService.findByBookId(id)).thenReturn(book1);
+    bookController.deleteBook(id);
+    verify(bookService).deleteBookById(id);
+  }
+}
